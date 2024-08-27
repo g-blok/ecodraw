@@ -34,7 +34,7 @@ const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
     }
 
     return (
-        <div className='flex w-full justify-between items-center p-4 mb-2 border-b-2'>
+        <div className='flex w-full justify-between items-center px-4 mb-2 border-b-2'>
             <div className='flex gap-8 items-center '>
                 <div className='font-bold'>
                     {site.name}

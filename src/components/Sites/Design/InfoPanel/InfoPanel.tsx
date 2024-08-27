@@ -6,7 +6,6 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Cost, Device, SiteData } from '../../../../common/types/types'
 import { DEVICE_CATEGORIES, STORAGE_DEVICES, COST_MULTIPLIERS } from '../../../../common/constants/constants'
@@ -68,94 +67,96 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ site, devices, onAddDevice, onRem
     }
 
     return (
-        <div className="w-1/4 p-4">
-            <div className='mb-4'>
+        <div className="flex flex-col w-96 py-4 mt-4 ml-4 rounded-xl border-2 bg-white">
+            <div className='mb-4 px-4'>
                 <div className='text-2xl font-bold'>{systemCapacity} kWh</div>
                 <div className=''>${hardwareCost}</div>
                 <div className=''>{systemArea} sqft</div>
             </div>
-            <Accordion defaultExpanded
-                sx={{
-                    '&:before': {
-                        display: 'none',
-                    },
-                }}
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="info-panel-devices"
+            <div className='flex flex-col h-full overflow-y-auto'>
+                <Accordion defaultExpanded
+                    sx={{
+                        '&:before': {
+                            display: 'none',
+                        },
+                    }}
                 >
-                    <div className='font-bold'>Devices</div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <div className='flex flex-col gap-2 max-h-40 overflow-y-auto'>
-                        {devices
-                            .filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((device, index) => (
-                                <div className="w-full flex items-center bg-secondary-light justify-between border rounded px-2" key={index}>
-                                    <div>
-                                        {device.name}
-                                    </div>
-                                    <IconButton aria-label="add {storageDevice.name}" onClick={() => handleRemoveDevice(device)}>
-                                        <CloseRoundedIcon />
-                                    </IconButton>
-                                </div>
-                        ))}
-                        {devices
-                            .filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER)
-                            .map((device, index) => (
-                                <div className="w-full flex items-center bg-secondary-light justify-between border rounded p-2 opacity-40" key={index}>
-                                    <div>
-                                        {device.name}
-                                    </div>
-                                </div>
-                        ))}
-                    </div>
-                    <div className='flex flex-wrap gap-2 mt-4'>
-                        {STORAGE_DEVICES.map((storageDevice, index) => {
-                            return <Button variant="contained" aria-label="add {storageDevice.name}" onClick={() => handleAddDevice(storageDevice)} key={index}>
-                                <AddRoundedIcon />
-                                {storageDevice.name}
-                            </Button>
-                        })}
-                    </div>
-                </AccordionDetails>
-            </Accordion>
-            <Accordion defaultExpanded
-                sx={{
-                    '&:before': {
-                        display: 'none',
-                    },
-                }}
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="info-panel-costs"
-                >
-                    <div className='font-bold'>Costs</div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <div className='flex flex-col gap-2 mt-2'>
-                        <div className='flex justify-between items-center'>
-                            <div>Hardware</div>
-                            <div>${hardwareCost}</div>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1-content"
+                        id="info-panel-devices"
+                    >
+                        <div className='font-bold'>Devices</div>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className='flex flex-wrap gap-2 mb-4'>
+                            {STORAGE_DEVICES.map((storageDevice, index) => {
+                                return <Button variant="contained" aria-label="add {storageDevice.name}" onClick={() => handleAddDevice(storageDevice)} key={index}>
+                                    <AddRoundedIcon />
+                                    {storageDevice.name}
+                                </Button>
+                            })}
                         </div>
-                        {COST_MULTIPLIERS.map((cost, index) => {
-                            return <div className='flex justify-between items-center' key={index}>
-                                <div>{cost.display}</div>
-                                <div>${getCost(cost)}</div>
+                        <div className='flex flex-col gap-2 max-h-40 overflow-y-auto'>
+                            {devices
+                                .filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((device, index) => (
+                                    <div className="w-full flex items-center bg-secondary-light justify-between border rounded px-2" key={index}>
+                                        <div>
+                                            {device.name}
+                                        </div>
+                                        <IconButton aria-label="add {storageDevice.name}" onClick={() => handleRemoveDevice(device)}>
+                                            <CloseRoundedIcon />
+                                        </IconButton>
+                                    </div>
+                            ))}
+                            {devices
+                                .filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER)
+                                .map((device, index) => (
+                                    <div className="w-full flex items-center bg-secondary-light justify-between border rounded p-2 opacity-40" key={index}>
+                                        <div>
+                                            {device.name}
+                                        </div>
+                                    </div>
+                            ))}
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion defaultExpanded
+                    sx={{
+                        '&:before': {
+                            display: 'none',
+                        },
+                    }}
+                >
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1-content"
+                        id="info-panel-costs"
+                    >
+                        <div className='font-bold'>Costs</div>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className='flex flex-col gap-2 mt-2'>
+                            <div className='flex justify-between items-center'>
+                                <div>Hardware</div>
+                                <div>${hardwareCost}</div>
                             </div>
-                        })}
-                        <div className='flex justify-between items-center'>
-                            <div className='font-bold'>Total</div>
-                            <div className='font-bold'>${totalCost}</div>
+                            {COST_MULTIPLIERS.map((cost, index) => {
+                                return <div className='flex justify-between items-center' key={index}>
+                                    <div>{cost.display}</div>
+                                    <div>${getCost(cost)}</div>
+                                </div>
+                            })}
+                            <div className='flex justify-between items-center'>
+                                <div className='font-bold'>Total</div>
+                                <div className='font-bold'>${totalCost}</div>
+                            </div>
                         </div>
-                    </div>
-                </AccordionDetails>
-            </Accordion>
+                    </AccordionDetails>
+                </Accordion>
+            </div>
         </div>
     );
 };

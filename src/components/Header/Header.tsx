@@ -7,7 +7,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 const Header: React.FC = () => {
   return (
     <div className='static w-full flex justify-between items-center p-4 border-b-2'>
-        <img src={logo} alt='Logo' className='h-16 mx-4' />
+        <img src={logo} alt='Logo' className='h-12 mr-2' />
         <div className='grow'>
             <nav className='flex justify-start gap-4 text-xl'>
             <NavLink

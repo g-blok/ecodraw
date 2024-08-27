@@ -26,7 +26,7 @@ const SiteDesign: React.FC<SiteTableProps> = ({ data }) => {
     return <div>Site not found</div>;
   }
 
-  const checkTransformers = () => {
+  const checkTransformers = (): void => {
     const storageCount = devices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE).length
     const transformerCount = devices.filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER).length
 
@@ -37,11 +37,13 @@ const SiteDesign: React.FC<SiteTableProps> = ({ data }) => {
     }
   }
 
-  const addTransformer = () => {
-    setDevices([...devices, TRANSFORMER_DEVICE]);
+  const addTransformer = (): void => {
+    let clonedTransformer = { ...TRANSFORMER_DEVICE };
+    clonedTransformer.id = uuidv4();
+    setDevices([...devices, clonedTransformer]);
   }
 
-  const removeTransformer = () => {
+  const removeTransformer = (): void => {
     const index = devices.findIndex(device => device.category === DEVICE_CATEGORIES.TRANSFORMER);
 
     if (index !== -1) {
@@ -49,27 +51,30 @@ const SiteDesign: React.FC<SiteTableProps> = ({ data }) => {
     }
   }
 
-  const addDevice = (name: string) => {
-    let newDevice = STORAGE_DEVICES.find((device) => device.name === name);
-    if (newDevice) {
-      newDevice.id = uuidv4();
-      setDevices([...devices, newDevice]);
+  const addDevice = (name: string): void => {
+    const matchingDevice = STORAGE_DEVICES.find((device) => device.name === name);
+    if (matchingDevice) {
+      let clonedDevice = { ...matchingDevice };
+      clonedDevice.id = uuidv4();
+      console.log('clonedDevice: ', clonedDevice)
+      setDevices([...devices, clonedDevice]);
     }
   };
 
-  const removeDevice = (id: string) => {
-      setDevices(devices.filter((device) => device.id !== id));
-  };
+	const removeDevice = (id: string): void => {
+		if (!id) return;
+		setDevices(devices.filter((device) => device.id !== id));
+	};
 
-  return (
-    <div>
-      <SiteHeader site={site} />
-      <div className="flex">
-        <InfoPanel site={site} devices={devices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
-        <DesignCanvas site={site} devices={devices} />
-      </div>
-    </div>
-  );
+	return (
+		<div>
+			<SiteHeader site={site} />
+			<div className="flex h-[70vh] max-h-[70vh]">
+				<InfoPanel site={site} devices={devices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
+				<DesignCanvas devices={devices} />
+			</div>
+		</div>
+	);
 };
 
 export default SiteDesign;

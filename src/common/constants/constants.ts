@@ -45,40 +45,43 @@ export const DEVICE_CATEGORIES = {
 
 export const STORAGE_DEVICES: Device[] = [
     {
-        id: 'fad950fe-60a9-4759-94c8-dd7982604d1a',
+        // id: 'fad950fe-60a9-4759-94c8-dd7982604d1a',
         name: 'MegapackXL',
         mfg: 'Tesla',
         category: 'storage',
-        length: 40,
-        width: 10,
+        length: 10,
+        width: 40,
         cost: 120000,
         release_date: 2022,
         capacity_kwh: 4000,
+        color: '#7A8F8A',
     },
     {
-        id: 'bdcd50dd-f072-44d3-b2bc-f9b813683850',
+        // id: 'bdcd50dd-f072-44d3-b2bc-f9b813683850',
         name: 'Megapack2',
         mfg: 'Tesla',
         category: 'storage',
-        length: 30,
-        width: 10,
+        length: 10,
+        width: 30,
         cost: 80000,
         release_date: 2021,
         capacity_kwh: 3000,
+        color: '#91A69F',
     },
     {
-        id: '488ef798-424e-48ea-898b-211f802e789b',
+        // id: '488ef798-424e-48ea-898b-211f802e789b',
         name: 'Megapack',
         mfg: 'Tesla',
         category: 'storage',
-        length: 30,
-        width: 10,
+        length: 10,
+        width: 30,
         cost: 50000,
         release_date: 2005,
         capacity_kwh: 2000,
+        color: '#C8D7D4',
     },
     {
-        id: '44cae0e3-32ab-410d-b4b9-426e8ff1ae1b',
+        // id: '44cae0e3-32ab-410d-b4b9-426e8ff1ae1b',
         name: 'PowerPack',
         mfg: 'Tesla',
         category: 'storage',
@@ -87,11 +90,12 @@ export const STORAGE_DEVICES: Device[] = [
         cost: 10000,
         release_date: 2000,
         capacity_kwh: 2000,
+        color: '#9BB59A',
     },
 ]
 
 export const TRANSFORMER_DEVICE: Device = {
-    id: '7ad4e88a-9dec-45e9-beb6-9448a2d8a571',
+    // id: '7ad4e88a-9dec-45e9-beb6-9448a2d8a571',
     name: 'Transformer',
     mfg: 'Tesla',
     category: 'transformer',
@@ -100,6 +104,7 @@ export const TRANSFORMER_DEVICE: Device = {
     cost: 10000,
     release_date: null,
     capacity_kwh: -500,
+    color: '#D9D9D9',
 }
 
 export const COST_MULTIPLIERS: Cost[] = [

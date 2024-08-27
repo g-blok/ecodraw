@@ -12,9 +12,16 @@ const theme = createTheme({
     components: {
         MuiButton: {
           styleOverrides: {
-            root: {
+            contained: {
               fontWeight: 'bold',
               color: '#fff',
+            },
+          },
+        },
+        MuiAccordion: {
+          styleOverrides: {
+            root: {
+              boxShadow: 'none',
             },
           },
         },

@@ -1,91 +1,202 @@
-// DesignCanvas.tsx
 import React, { useRef, useEffect, useState } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { Device, SiteData } from '../../../../common/types/types';
-import { SNAZZY_MAP_STYLE } from '../../../../common/constants/snazzy'
+import Button from '@mui/material/Button';
+import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
+import { Device } from '../../../../common/types/types';
 
 interface DesignCanvasProps {
-    site: SiteData;
-    devices: Device[];
+  devices: Device[];
 }
 
-const containerStyle = {
-  width: '75%',
-  height: '80vh'
-};
+const DesignCanvas: React.FC<DesignCanvasProps> = ({ devices }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [deviceLayout, setDeviceLayout] = useState<Device[]>([]);
+  const [systemLayout, setSystemLayout] = useState<Device[]>([]);
+  const [scale, setScale] = useState(5);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [lastMousePos, setLastMousePos] = useState<{ x: number; y: number } | null>(null);
 
-const DesignCanvas: React.FC<DesignCanvasProps> = ({ site, devices }) => {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'API_KEY',
-  });
+  const maxHeight = 100;
+  const deviceHeightWithMargin = 20; // 10ft device + 10ft margin
 
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const [deviceState, setDevices] = useState<Device[]>(devices);
+  const calculateLayout = (devices: Device[]): Device[] => {
+    let currentHeight = 0;
+    let currentRow = 0;
+    let xPos = 0;
+    let yPos = 0;
 
-  useEffect(() => {
-    if (mapRef.current) {
-      // Initialize drag and drop and collision detection logic
-    }
-  }, [devices]);
+    const sortedDevices = devices.sort((a, b) => a.width - b.width);
 
-  const onLoad = (map: google.maps.Map) => {
-    mapRef.current = map;
+    sortedDevices.forEach((device) => {
+      if (currentHeight + deviceHeightWithMargin <= maxHeight) {
+        // Place device in the current row
+        device.x = xPos;
+        device.y = yPos;
+        currentHeight += deviceHeightWithMargin;
+        xPos += deviceHeightWithMargin;
+      } else {
+        // Move to a new row
+        currentRow++;
+        xPos = 0;
+        yPos += 20; // Move down by 20ft (10ft device height + 10ft margin)
+        device.x = xPos;
+        device.y = yPos;
+        currentHeight = deviceHeightWithMargin;
+        xPos += deviceHeightWithMargin;
+      }
+    });
+
+    return sortedDevices;
   };
 
-  const isOverlapping = (device1: Device, device2: Device): boolean => {
-    if (!device1?.x || !device2.x || !device1?.y || !device2?.y) { return false; }
-    return !(
-      device1.x + device1.width < device2.x ||
-      device1.x > device2.x + device2.width ||
-      device1.y + device1.length < device2.y ||
-      device1.y > device2.y + device2.length
-    );
-  };
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const parentWidth = canvas.parentElement?.clientWidth;
+      const parentHeight = canvas.parentElement?.clientHeight;
+      
+      // Adjust canvas resolution
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = parentWidth * dpr;
+      canvas.height = parentHeight * dpr;
+      canvas.style.width = `${parentWidth}px`;
+      canvas.style.height = `${parentHeight}px`;
   
-  const handleDragEnd = (index: number, newPosition: { x: number, y: number }) => {
-    const updatedDevices = [...deviceState];
-    updatedDevices[index] = {
-      ...updatedDevices[index],
-      x: newPosition.x,
-      y: newPosition.y
-    };
-  
-    // Check for collisions
-    for (let i = 0; i < updatedDevices.length; i++) {
-      if (i !== index && isOverlapping(updatedDevices[i], updatedDevices[index])) {
-        alert('Devices cannot overlap!');
-        return;
+      // Scale the context to match the device pixel ratio
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.scale(dpr, dpr);
       }
     }
-  
-    setDevices(updatedDevices);
   };
 
-  return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={{ lat: site.lat, lng: site.long }}
-      zoom={18}
-      options={{ styles: SNAZZY_MAP_STYLE }}
-      onLoad={onLoad}
-    >
-      {/* Render devices as rectangles on the map */}
-      {deviceState.map((device, index) => (
-        <div
-          key={index}
-          style={{
-            position: 'absolute',
-            width: `${device.width}px`,
-            height: `${device.length}px`,
-            backgroundColor: 'rgba(255, 0, 0, 0.5)',
-            // Position logic based on map
-          }}
-          draggable
-          onDragEnd={(e) => handleDragEnd(index, { x: e.clientX, y: e.clientY })}
+  useEffect(() => {
+    resizeCanvas(); // Initial resize
+    window.addEventListener('resize', resizeCanvas);
+
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+
+    if (canvas && context) {
+      const layout = calculateLayout(devices);
+      setDeviceLayout(layout);
+
+      console.log('layout: ', layout)
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw grid
+      const gridSize = 10;
+      const dotSize = 2;
+      context.fillStyle = '#ccc';
+
+      const startX = offsetX % gridSize;
+      const startY = offsetY % gridSize;
+
+      for (let x = startX; x < canvas.width; x += gridSize * scale) {
+        for (let y = startY; y < canvas.height; y += gridSize * scale) {
+          context.fillRect(x, y, dotSize, dotSize);
+        }
+      }
+
+      // Draw devices
+      layout.forEach((device) => {
+        if (device.x !== undefined && device.y !== undefined) {
+          context.fillStyle = device.color;
+          context.fillRect(
+            device.x * scale + offsetX,
+            device.y * scale + offsetY,
+            device.width * scale,
+            device.length * scale
+          );
+          context.strokeStyle = 'black';
+          context.strokeRect(
+            device.x * scale + offsetX,
+            device.y * scale + offsetY,
+            device.width * scale,
+            device.length * scale
+          );
+          context.fillStyle = 'black';
+          // context.fillText(device.name, device.x * scale + offsetX + 5, device.y * scale + offsetY + 15);
+        }
+      });
+    }
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, [scale, offsetX, offsetY, devices]);
+
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const zoomFactor = 0.1;
+    const newScale = scale + (e.deltaY > 0 ? -zoomFactor : zoomFactor);
+    setScale(Math.max(0.1, Math.min(newScale, 5)));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    setDragging(true);
+    setLastMousePos({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (dragging && lastMousePos) {
+      const deltaX = e.clientX - lastMousePos.x;
+      const deltaY = e.clientY - lastMousePos.y;
+      setOffsetX(offsetX + deltaX);
+      setOffsetY(offsetY + deltaY);
+      setLastMousePos({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+    setLastMousePos(null);
+  };
+
+  const handleCenterDevices = () => {
+    if (devices.length === 0) return;
+
+    const deviceMinX = Math.min(...devices.map((d) => d.x || 0));
+    const deviceMinY = Math.min(...devices.map((d) => d.y || 0));
+    const deviceMaxX = Math.max(...devices.map((d) => (d.x || 0) + d.width));
+    const deviceMaxY = Math.max(...devices.map((d) => (d.y || 0) + d.length));
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    const centerX = (deviceMinX + deviceMaxX) / 2;
+    const centerY = (deviceMinY + deviceMaxY) / 2;
+
+    setOffsetX(canvasWidth / 2 - centerX * scale);
+    setOffsetY(canvasHeight / 2 - centerY * scale);
+  };
+
+  return (
+    <div className='flex grow w-full mt-4 mr-4 ml-4'>
+      <div className='flex flex-col grow rounded-xl border-2 w-full'>
+        <canvas
+          ref={canvasRef}
+          // width={1100}
+          // height={600}
+          style={{ height: '100%', borderRadius: '10px', cursor: dragging ? 'grabbing' : 'grab' }}
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         />
-      ))}
-    </GoogleMap>
-  ) : <></>;
+      </div>
+      <div className='flex flex-col gap-4 pl-4'>
+		<Button variant="outlined" aria-label="center devices on canvas" onClick={handleCenterDevices}>
+			<CenterFocusStrongIcon />
+			Center
+		</Button>
+      </div>
+    </div>
+  );
 };
 
 export default DesignCanvas;

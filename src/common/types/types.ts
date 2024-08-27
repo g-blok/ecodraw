@@ -14,7 +14,6 @@ export interface SiteData {
 }
 
 export interface Device {
-    id: string;
     name: string;
     mfg: string;
     category: 'storage' | 'transformer';
@@ -23,8 +22,10 @@ export interface Device {
     cost: number;
     release_date: number | null;
     capacity_kwh: number;
+    color: string;
     x?: number;
     y?: number;
+    id?: string;
 }
 
 export interface Cost {
