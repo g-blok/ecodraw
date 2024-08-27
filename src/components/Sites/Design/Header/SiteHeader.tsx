@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { SiteData } from '../../../types/types'
+import { SiteData } from '../../../../common/types/types'
 
 interface SiteHeaderProps {
   site: SiteData;
@@ -43,8 +43,8 @@ const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
             </div>
             <div className='flex gap-8 items-center '>
                 <div>{site.address}</div>
-                <IconButton className="w-16 h-16" size="large" aria-label="open settings">
-                    <EditRoundedIcon onClick={handleOpenModal} />
+                <IconButton className="w-16 h-16" size="large" aria-label="open settings" onClick={handleOpenModal}>
+                    <EditRoundedIcon />
                 </IconButton>
             </div>
 

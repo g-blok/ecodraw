@@ -1,7 +1,8 @@
 // DesignCanvas.tsx
 import React, { useRef, useEffect, useState } from 'react';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { Device, SiteData } from '../../../types/types';
+import { Device, SiteData } from '../../../../common/types/types';
+import { SNAZZY_MAP_STYLE } from '../../../../common/constants/snazzy'
 
 interface DesignCanvasProps {
     site: SiteData;
@@ -10,12 +11,12 @@ interface DesignCanvasProps {
 
 const containerStyle = {
   width: '75%',
-  height: '100vh'
+  height: '80vh'
 };
 
 const DesignCanvas: React.FC<DesignCanvasProps> = ({ site, devices }) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
+    googleMapsApiKey: 'API_KEY',
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -36,8 +37,8 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ site, devices }) => {
     return !(
       device1.x + device1.width < device2.x ||
       device1.x > device2.x + device2.width ||
-      device1.y + device1.height < device2.y ||
-      device1.y > device2.y + device2.height
+      device1.y + device1.length < device2.y ||
+      device1.y > device2.y + device2.length
     );
   };
   
@@ -64,7 +65,8 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ site, devices }) => {
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={{ lat: site.lat, lng: site.long }}
-      zoom={10}
+      zoom={18}
+      options={{ styles: SNAZZY_MAP_STYLE }}
       onLoad={onLoad}
     >
       {/* Render devices as rectangles on the map */}
@@ -74,7 +76,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ site, devices }) => {
           style={{
             position: 'absolute',
             width: `${device.width}px`,
-            height: `${device.height}px`,
+            height: `${device.length}px`,
             backgroundColor: 'rgba(255, 0, 0, 0.5)',
             // Position logic based on map
           }}

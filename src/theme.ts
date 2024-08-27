@@ -13,8 +13,8 @@ const theme = createTheme({
         MuiButton: {
           styleOverrides: {
             root: {
-              fontWeight: 'bold', // Make the text bold
-              color: '#fff', // Default text color
+              fontWeight: 'bold',
+              color: '#fff',
             },
           },
         },

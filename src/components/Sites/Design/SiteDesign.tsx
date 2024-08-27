@@ -1,10 +1,11 @@
-// SitePage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useParams } from 'react-router-dom';
-import SiteHeader from '../Header/SiteHeader';
-import InfoPanel from '../InfoPanel/InfoPanel';
-import DesignCanvas from '../DesignCanvas/DesignCanvas';
-import { Device, SiteData } from '../../../types/types';
+import SiteHeader from './Header/SiteHeader';
+import InfoPanel from './InfoPanel/InfoPanel';
+import DesignCanvas from './DesignCanvas/DesignCanvas';
+import { Device, SiteData } from '../../../common/types/types';
+import { DEVICE_CATEGORIES, STORAGE_DEVICES, TRANSFORMER_DEVICE } from '../../../common/constants/constants';
 
 
 interface SiteTableProps {
@@ -15,31 +16,56 @@ const SiteDesign: React.FC<SiteTableProps> = ({ data }) => {
   const { path } = useParams<{ path: string }>();
   const [devices, setDevices] = useState<Device[]>([]);
 
-  console.log('data: ', data)
-  // Find the site with the matching name
+  useEffect(() => {
+    checkTransformers()
+  }, [devices])
+
   const site = data.find(site => site.path === path);
+
   if (!site) {
     return <div>Site not found</div>;
   }
 
-  const addDevice = (type: 'Large Doodad' | 'Medium Widget') => {
-    const newDevice = type === 'Large Doodad' 
-      ? { type, width: 40, height: 10 } 
-      : { type, width: 20, height: 10 };
+  const checkTransformers = () => {
+    const storageCount = devices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE).length
+    const transformerCount = devices.filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER).length
 
-    setDevices([...devices, newDevice]);
-
-    // Automatically add a 'Thingy' for every two devices added
-    if ((devices.length + 1) % 2 === 0) {
-      setDevices([...devices, newDevice, { type: 'Thingy', width: 10, height: 10 }]);
+    if (storageCount / 2 > transformerCount ) {
+      addTransformer();
+    } else if (storageCount / 2 < transformerCount ) {
+      removeTransformer();
     }
+  }
+
+  const addTransformer = () => {
+    setDevices([...devices, TRANSFORMER_DEVICE]);
+  }
+
+  const removeTransformer = () => {
+    const index = devices.findIndex(device => device.category === DEVICE_CATEGORIES.TRANSFORMER);
+
+    if (index !== -1) {
+      devices.splice(index, 1);
+    }
+  }
+
+  const addDevice = (name: string) => {
+    let newDevice = STORAGE_DEVICES.find((device) => device.name === name);
+    if (newDevice) {
+      newDevice.id = uuidv4();
+      setDevices([...devices, newDevice]);
+    }
+  };
+
+  const removeDevice = (id: string) => {
+      setDevices(devices.filter((device) => device.id !== id));
   };
 
   return (
     <div>
       <SiteHeader site={site} />
       <div className="flex">
-        <InfoPanel path={path || ''} devices={devices} onAddDevice={addDevice} />
+        <InfoPanel site={site} devices={devices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
         <DesignCanvas site={site} devices={devices} />
       </div>
     </div>

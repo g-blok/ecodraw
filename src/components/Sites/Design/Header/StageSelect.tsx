@@ -3,13 +3,15 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { STAGES } from '../../../../common/constants/constants';
 
 interface StageSelectProps {
     stage: string;
 }
 
 const StageSelect: React.FC<StageSelectProps> = ({ stage }) => {
-    const [selectedStage, setStage] = React.useState(stage);
+    const initialStage = STAGES.find((stageOption) => stageOption.display === stage)?.value ?? '';
+    const [selectedStage, setStage] = React.useState(initialStage);
 
     const handleChange = (event: SelectChangeEvent) => {
         setStage(event.target.value as string);
@@ -25,9 +27,9 @@ const StageSelect: React.FC<StageSelectProps> = ({ stage }) => {
                 onChange={handleChange}
                 className='w-40 h-10'
             >
-                <MenuItem className='text-primary' value={'design'}>Design</MenuItem>
-                <MenuItem value={'sold'}>Sold</MenuItem>
-                <MenuItem value={'operational'}>Operational</MenuItem>
+                {STAGES.map((stage, index) => {
+                    return <MenuItem className='text-primary' value={stage.value} key={index}>{stage.display}</MenuItem>
+                })}
             </Select>
             </FormControl>
         </Box>
