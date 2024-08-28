@@ -55,6 +55,7 @@ export const STORAGE_DEVICES: Device[] = [
         release_date: 2022,
         capacity_kwh: 4000,
         color: '#7A8F8A',
+        img: 'megapackxl.png'
     },
     {
         // id: 'bdcd50dd-f072-44d3-b2bc-f9b813683850',
@@ -67,6 +68,7 @@ export const STORAGE_DEVICES: Device[] = [
         release_date: 2021,
         capacity_kwh: 3000,
         color: '#91A69F',
+        img: 'megapack2.jpg'
     },
     {
         // id: '488ef798-424e-48ea-898b-211f802e789b',
@@ -79,6 +81,7 @@ export const STORAGE_DEVICES: Device[] = [
         release_date: 2005,
         capacity_kwh: 2000,
         color: '#C8D7D4',
+        img: 'megapack.png'
     },
     {
         // id: '44cae0e3-32ab-410d-b4b9-426e8ff1ae1b',
@@ -91,6 +94,7 @@ export const STORAGE_DEVICES: Device[] = [
         release_date: 2000,
         capacity_kwh: 2000,
         color: '#9BB59A',
+        img: 'powerpack.png'
     },
 ]
 
@@ -105,6 +109,7 @@ export const TRANSFORMER_DEVICE: Device = {
     release_date: null,
     capacity_kwh: -500,
     color: '#D9D9D9',
+    img: 'transformer.jpg'
 }
 
 export const COST_MULTIPLIERS: Cost[] = [

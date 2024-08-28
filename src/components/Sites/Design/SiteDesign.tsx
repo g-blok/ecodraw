@@ -56,12 +56,11 @@ const SiteDesign: React.FC<SiteTableProps> = ({ data }) => {
     if (matchingDevice) {
       let clonedDevice = { ...matchingDevice };
       clonedDevice.id = uuidv4();
-      console.log('clonedDevice: ', clonedDevice)
       setDevices([...devices, clonedDevice]);
     }
   };
 
-	const removeDevice = (id: string): void => {
+	const removeDevice = (id: string | undefined): void => {
 		if (!id) return;
 		setDevices(devices.filter((device) => device.id !== id));
 	};

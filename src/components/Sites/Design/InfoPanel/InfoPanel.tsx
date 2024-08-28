@@ -67,10 +67,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ site, devices, onAddDevice, onRem
     }
 
     return (
-        <div className="flex flex-col w-96 py-4 mt-4 ml-4 rounded-xl border-2 bg-white">
+        <div className="flex flex-col min-w-1/4 w-1/4 py-4 mt-4 ml-4 rounded-xl border-2 bg-white">
             <div className='mb-4 px-4'>
                 <div className='text-2xl font-bold'>{systemCapacity} kWh</div>
-                <div className=''>${hardwareCost}</div>
+                <div className=''>${totalCost}</div>
                 <div className=''>{systemArea} sqft</div>
             </div>
             <div className='flex flex-col h-full overflow-y-auto'>

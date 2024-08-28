@@ -16,6 +16,14 @@ const theme = createTheme({
               fontWeight: 'bold',
               color: '#fff',
             },
+            outlined: {
+                background: '#fff',
+
+                "&:hover": {
+                    background: '#F4F6E8',
+                },
+            },
+            
           },
         },
         MuiAccordion: {

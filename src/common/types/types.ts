@@ -26,6 +26,7 @@ export interface Device {
     x?: number;
     y?: number;
     id?: string;
+    img?: string;
 }
 
 export interface Cost {
