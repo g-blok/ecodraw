@@ -17,9 +17,9 @@ This project is a web application designed to help users design and manage energ
     - [Frontend (frontend/.env)](#frontend-frontendenv)
     - [Backend (backend/.env)](#backend-backendenv)
   - [Running the Application](#running-the-application)
-  - [Development](#development)
-    - [Backend](#backend)
-    - [Frontend](#frontend)
+    - [Development](#development)
+      - [Backend](#backend)
+      - [Frontend](#frontend)
   - [Deployment](#deployment)
     - [Docker](#docker)
     - [Build and run the containers:](#build-and-run-the-containers)
@@ -109,13 +109,13 @@ SUPABASE_KEY=your-supabase-key
 ```
 
 ## Running the Application
-## Development
-### Backend
+### Development
+#### Backend
 ```
 cd backend
 npm run dev
 ```
-### Frontend
+#### Frontend
 
 ``` sh
 cd frontend
@@ -159,23 +159,23 @@ Creates a new site with the provided data.
 	 "metering": "string", // The metering type used at the site
 	 "revenue_streams": ["string"],// (Optional) An array of revenue streams associated with the site (e.g., "SGIP", "DRAM")
 	 "layout": [ // (Optional) A 2D array of devices representing the site layout 
-		 [ 
-			 {
-				 { "name": "string", // The name of the device
-				 "mfg": "string", // The manufacturer of the device
-				 "category": "storage", // The category of the device (e.g., "storage", "transformer")
-				 "length": "number", // The length of the device
-				 "width": "number", // The width of the device
-				 "cost": "number", // The cost of the device
-				 "release_date": "number|null",// The release date of the device (timestamp), or null if not released
-				 "capacity_kwh": "number", // The capacity of the device in kWh
-				 "color": "string", // The color associated with the device
-				 "x": "number", // (Optional) The x-coordinate of the device on the layout
-				 "y": "number", // (Optional) The y-coordinate of the device on the layout
-				 "uuid": "string", // (Optional) A unique identifier for the device
-				 "img": "string" // (Optional) An image URL for the device }
-			 }
-		 ]
+      [ 
+        {
+          "name": "string", // The name of the device
+          "mfg": "string", // The manufacturer of the device
+          "category": "storage", // The category of the device (e.g., "storage", "transformer")
+          "length": "number", // The length of the device
+          "width": "number", // The width of the device
+          "cost": "number", // The cost of the device
+          "release_date": "number|null",// The release date of the device (timestamp), or null if not released
+          "capacity_kwh": "number", // The capacity of the device in kWh
+          "color": "string", // The color associated with the device
+          "x": "number", // (Optional) The x-coordinate of the device on the layout
+          "y": "number", // (Optional) The y-coordinate of the device on the layout
+          "uuid": "string", // (Optional) A unique identifier for the device
+          "img": "string" // (Optional) An image URL for the device }
+        }
+      ]
 	 ]
  }
 ```
