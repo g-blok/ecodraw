@@ -165,7 +165,7 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 				<div>
 					<SiteHeader site={site} />
 					<div className="flex h-[70vh] max-h-[70vh]">
-						<InfoPanel siteDevices={siteDevices} defaultDevices={defaultDevices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
+						<InfoPanel siteDevices={siteDevices} defaultDevices={defaultDevices} systemLayout={systemLayout} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
 						<DesignCanvas defaultDevices={defaultDevices} systemLayout={systemLayout} />
 					</div>
 				</div>

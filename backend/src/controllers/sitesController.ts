@@ -2,8 +2,6 @@ import { Request, Response } from 'express';
 const supabase = require('../database/supabaseClient');
 
 const getSites = async (req: Request, res: Response) => {
-    console.log('ran getSites')
-
     try {
         const { data: sites, error } = await supabase
         .from('sites')

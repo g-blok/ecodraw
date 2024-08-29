@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
+import BorderClearIcon from '@mui/icons-material/BorderClear';
 import { Device } from '../../../../common/types/types';
 import { DEVICE_CATEGORIES, SPACING } from '../../../../common/constants/constants';
 import { getBufferAreaDimensions } from '../../../../utils/layoutUtils'
@@ -19,6 +20,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 	const [dragging, setDragging] = useState<boolean>(false);
 	const [lastMousePos, setLastMousePos] = useState<{ x: number; y: number } | null>(null);
 	const [tooltip, setTooltip] = useState<{ x: number, y: number, content: JSX.Element } | null>(null);
+	const [showBuffer, setShowBuffer] = useState<boolean>(false);
 
 	const defaultStorageDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
 	const defaultTransformerDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER)
@@ -69,8 +71,6 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		offsetX: number,
 		offsetY: number
 	) => {
-		console.log('requested to draw buffer')
-		console.log('systemLayout in buffer draw: ', systemLayout)
 		if (systemLayout.length === 0) return;
 		const patternCanvas = document.createElement('canvas');
 		patternCanvas.width = 10;
@@ -123,8 +123,11 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 			drawGrid(context, canvas.width, canvas.height);
 			
 			// Draw buffer
-			const { bufferXPos, bufferYPos, bufferWidth, bufferLength } = getBufferAreaDimensions(systemLayout);
-			drawBufferArea(context, bufferXPos, bufferYPos, bufferWidth, bufferLength, scale, offsetX, offsetY);
+			if (showBuffer) {
+				console.log('systemLayout: ', systemLayout)
+				const { bufferXPos, bufferYPos, bufferWidth, bufferLength } = getBufferAreaDimensions(systemLayout);
+				drawBufferArea(context, bufferXPos, bufferYPos, bufferWidth, bufferLength, scale, offsetX, offsetY);
+			}
 
 			// Draw devices
 			systemLayout.forEach((row, rowIndex) => {
@@ -164,7 +167,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 				});
 			});
 		}
-	}, [drawBufferArea, drawGrid, offsetX, offsetY, scale, systemLayout])
+	}, [drawBufferArea, drawGrid, offsetX, offsetY, scale, showBuffer, systemLayout])
 
 	// Move all devices to center of canvas
 	const handleCenterDevices = useCallback(() => {
@@ -184,9 +187,21 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		const centerX = (deviceMinX + deviceMaxX) / 2;
 		const centerY = (deviceMinY + deviceMaxY) / 2;
 
-		setOffsetX(canvasWidth / 2 - centerX * scale);
-		setOffsetY(canvasHeight / 2 - centerY * scale);
-	}, [scale, systemLayout]);
+		const layoutWidth = deviceMaxX - deviceMinX;
+		const layoutHeight = deviceMaxY - deviceMinY;
+
+		const scaleX = canvasWidth / layoutWidth;
+		const scaleY = canvasHeight / layoutHeight;
+		const newScale = Math.min(scaleX, scaleY) * 0.7;
+
+		setScale(newScale);
+		setOffsetX(canvasWidth / 2 - centerX * newScale);
+		setOffsetY(canvasHeight / 2 - centerY * newScale);
+	}, [systemLayout]);
+
+	const handleToggleBuffer = () => {
+		setShowBuffer(!showBuffer);
+	}
 
 	// Manage canvas updates
 	useEffect(() => {
@@ -196,12 +211,12 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		return () => {
 			window.removeEventListener('resize', resizeCanvas);
 		};
-	}, [scale, offsetX, offsetY, systemLayout, redrawCanvas]);
+	}, [scale, offsetX, offsetY, systemLayout, showBuffer, redrawCanvas]);
 
 	// Center canvas when layout is updated
 	useEffect(() => {
-		handleCenterDevices()
-	}, [systemLayout])
+		handleCenterDevices();
+	}, [handleCenterDevices, systemLayout])
 
 	// Handle scroll to zoom
 	const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
@@ -248,10 +263,10 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 			if (device?.x === undefined) return;
 			if (device?.y === undefined) return;
 			if (
-			mouseX >= device.x &&
-			mouseX <= device.x + device.width &&
-			mouseY >= device.y &&
-			mouseY <= device.y + device.length
+				mouseX >= device.x &&
+				mouseX <= device.x + device.width &&
+				mouseY >= device.y &&
+				mouseY <= device.y + device.length
 			) {
 			setTooltip({
 				x: e.clientX,
@@ -337,6 +352,10 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 			<Button variant="outlined" aria-label="center devices on canvas" onClick={handleCenterDevices}>
 				<CenterFocusStrongIcon />
 				Center
+			</Button>
+			<Button variant="outlined" aria-label="show buffer area on devices" onClick={handleToggleBuffer}>
+				<BorderClearIcon />
+				Show Buffer
 			</Button>
 		</div>
 	</div>

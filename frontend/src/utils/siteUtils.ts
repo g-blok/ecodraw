@@ -1,36 +1,39 @@
 import { Device } from '../common/types/types'
+import { SPACING } from '../common/constants/constants';
 
 export const getDeviceArea = (devices: Device[]): number => {
     if (devices.length === 0) return 0;
     return devices.reduce((n, {length, width}) => n + length * width, 0)
 }
 
-export const getTotalArea = (devices: Device[]): number => {
-    if (devices.length === 0) return 0;
+export const getTotalArea = (layout: Device[][]): number => {
+    const offset: number = SPACING.MAX_DEVICE_WIDTH
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
 
-    // Find the minimum x and y (top-left corner)
-    let minX = 0;
-    let minY = 0;
-
-    // Find the maximum x + width and y + length (bottom-right corner)
-    let maxX = 0;
-    let maxY = 0;
-
-    devices.forEach(device => {
-        if (device && device.x && device.y) {
-            minX = Math.min(minX, device.x);
-            minY = Math.min(minY, device.y);
-            maxX = Math.max(maxX, device.x + device.width);
-            maxY = Math.max(maxY, device.y + device.length);
-        }
+    layout.forEach(row => {
+        row.forEach(device => {
+            if (device && device.x != undefined && device.y != undefined) {
+                minX = Math.min(minX, device.x);
+                minY = Math.min(minY, device.y);
+                maxX = Math.max(maxX, device.x + device.width);
+                maxY = Math.max(maxY, device.y + device.length);
+            }
+        });
     });
 
-    // Calculate the width and height of the bounding box
-    const boundingWidth = maxX - minX;
-    const boundingHeight = maxY - minY;
+    const bufferWidth = Math.max(0, maxX + minX + 2 * offset);
+    const bufferLength = Math.max(0, maxY + minY + 2 * offset);
 
-    // Calculate the area of the bounding box
-    return boundingWidth * boundingHeight;
+    const minimumBufferSize = 30;
+
+    const validatedBufferWidth = Math.max(bufferWidth, minimumBufferSize);
+    const validatedBufferLength = Math.max(bufferLength, minimumBufferSize);
+    const totalArea = validatedBufferWidth * validatedBufferLength;
+
+    return totalArea;
 }
 
 export const getTotalCapacity = (devices: Device[]): number => {

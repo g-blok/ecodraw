@@ -15,11 +15,12 @@ import { numberToString, numberToMoneyString } from '../../../../utils/formatUti
 interface InfoPanelProps {
     siteDevices: Device[];
     defaultDevices: Device[];
+    systemLayout: Device[][];
     onAddDevice: (name: Device['name']) => void;
     onRemoveDevice: (device: Device['uuid']) => void;
 }
 
-const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAddDevice, onRemoveDevice }) => {
+const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, systemLayout, onAddDevice, onRemoveDevice }) => {
     const initialCapacity = getTotalCapacity(siteDevices)
     const initialHardwareCost = getHardwareCost(siteDevices)
 	const defaultStorageDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
@@ -27,7 +28,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
     const [systemCapacity, setSystemCapacity] =useState<number>(initialCapacity);
     const [hardwareCost, setCost] =useState<number>(initialHardwareCost);
     const [deviceArea, setDeviceArea] =useState<number>(getDeviceArea(siteDevices));
-    const [systemArea, setSystemArea] =useState<number>(getTotalArea(siteDevices));
+    const [systemArea, setSystemArea] =useState<number>(getTotalArea(systemLayout));
     const [totalCost, setTotalCost] =useState<number>(0);
 
     const getCost = useCallback((cost: Cost): number => {
@@ -54,9 +55,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
         setSystemCapacity(getTotalCapacity(siteDevices));
         setCost(getHardwareCost(siteDevices));
         setDeviceArea(getDeviceArea(siteDevices));
-        setSystemArea(getTotalArea(siteDevices));
+        setSystemArea(getTotalArea(systemLayout));
         setTotalCost(getTotalCost());
-    }, [getTotalCost, siteDevices])
+    }, [getTotalCost, siteDevices, systemLayout])
 
     const handleAddDevice = (device: Device) => {
         onAddDevice(device.name)
@@ -77,7 +78,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
                 </div>
                 <div className='flex items-center'>
                     <div className=''>{numberToString(systemArea)} sqft</div>
-                    <div className='text-xs pl-2'>(System area)</div>
+                    <div className='text-xs pl-2'>(System area w/ Buffer)</div>
                 </div>
             </div>
             <div className='flex flex-col h-full overflow-y-auto'>
