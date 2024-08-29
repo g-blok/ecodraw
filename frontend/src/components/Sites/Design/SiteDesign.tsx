@@ -29,12 +29,12 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 	// Fetch default devices on component mount
 	const fetchDefaultDevices = useCallback(async () => {
 		try {
-		const data: Device[] = await getDefaultDevices();
-		setDefaultDevices(data);
+			const data: Device[] = await getDefaultDevices();
+			setDefaultDevices(data);
 		} catch (error) {
-		console.error('Error fetching devices:', error);
+			console.error('Error fetching devices:', error);
 		} finally {
-		setLoading(false);
+			setLoading(false);
 		}
 	}, []);
 
@@ -51,7 +51,7 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 		const debouncedFetch = debounce(fetchDefaultDevices, 300);
 		debouncedFetch();
 		return () => {
-		debouncedFetch.cancel();
+			debouncedFetch.cancel();
 		};
 	}, [fetchDefaultDevices]);
 
@@ -96,7 +96,6 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 			const transformersToRemove = transformerCount - requiredTransformers;
 			finalDevices = removeTransformers(finalDevices, transformersToRemove);
 		}
-		
 		setSiteDevices(finalDevices);
 	};
 
@@ -112,14 +111,23 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 		[site]
 	);
 
+	// Manage update of systemLayout
+	useEffect(() => {
+		const newLayout = createSystemLayout(siteDevices);
+		setSystemLayout(newLayout);
+
+		debouncedUpdateLayout(newLayout);
+		return () => {
+			debouncedUpdateLayout.cancel();
+		};
+	}, [debouncedUpdateLayout, siteDevices])
+
 	// Add the device the user clicks on in the InfoPanel
 	const addDevice = (name: string) => {
-		console.log('adding device')
 		const matchingDevice = defaultDevices.find(device => device.name === name);
 		if (matchingDevice) {
 			const clonedDevice = { ...matchingDevice, uuid: uuidv4() };
 			const updatedDevices = [...siteDevices, clonedDevice]
-			console.log('add device: ', updatedDevices)
 			checkTransformers(updatedDevices);
 		}
 	};
@@ -130,13 +138,6 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 		const updatedDevices = siteDevices.filter(device => device.uuid !== uuid)
 		checkTransformers(updatedDevices);
 	};
-
-	// Manage update of siteDevices
-	useEffect(() => {
-		const newLayout = createSystemLayout(siteDevices);
-		setSystemLayout(newLayout);
-		debouncedUpdateLayout(newLayout);
-	}, [debouncedUpdateLayout, siteDevices])
 
 	if (!site) {
 		return (
@@ -149,26 +150,26 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 
 	return (
 		<div className="w-full h-full">
-		{loading ? (
-			<div className='flex p-4 w-full h-full items-center justify-center'>
-				<video
-					className="h-40 object-cover filter saturate-50"
-					src={`/assets/loading.mp4`}
-					autoPlay
-					loop
-					muted
-					playsInline
-				/>
-			</div>
-		) : (
-			<div>
-				<SiteHeader site={site} />
-				<div className="flex h-[70vh] max-h-[70vh]">
-					<InfoPanel siteDevices={siteDevices} defaultDevices={defaultDevices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
-					<DesignCanvas defaultDevices={defaultDevices} systemLayout={systemLayout} />
+			{loading ? (
+				<div className='flex p-4 w-full h-full items-center justify-center'>
+					<video
+						className="h-40 object-cover filter saturate-50"
+						src={`/assets/loading.mp4`}
+						autoPlay
+						loop
+						muted
+						playsInline
+					/>
 				</div>
-			</div>
-		)}
+			) : (
+				<div>
+					<SiteHeader site={site} />
+					<div className="flex h-[70vh] max-h-[70vh]">
+						<InfoPanel siteDevices={siteDevices} defaultDevices={defaultDevices} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
+						<DesignCanvas defaultDevices={defaultDevices} systemLayout={systemLayout} />
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

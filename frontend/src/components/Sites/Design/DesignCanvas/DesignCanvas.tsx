@@ -3,24 +3,22 @@ import Button from '@mui/material/Button';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { Device } from '../../../../common/types/types';
 import { DEVICE_CATEGORIES, SPACING } from '../../../../common/constants/constants';
+import { calculateBufferArea } from '../../../../utils/layoutUtils'
+import { numberToString, numberToMoneyString } from '../../../../utils/formatUtils'
 
 interface DesignCanvasProps {
-  defaultDevices: Device[];
-  systemLayout: Device[][];
+	defaultDevices: Device[];
+	systemLayout: Device[][];
 }
 
 const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayout }) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
-	const [scale, setScale] = useState(5);
-	const [offsetX, setOffsetX] = useState(0);
-	const [offsetY, setOffsetY] = useState(0);
-	const [dragging, setDragging] = useState(false);
+	const [scale, setScale] = useState<number>(5);
+	const [offsetX, setOffsetX] = useState<number>(0);
+	const [offsetY, setOffsetY] = useState<number>(0);
+	const [dragging, setDragging] = useState<boolean>(false);
 	const [lastMousePos, setLastMousePos] = useState<{ x: number; y: number } | null>(null);
 	const [tooltip, setTooltip] = useState<{ x: number, y: number, content: JSX.Element } | null>(null);
-
-	const walkwayWidth = 10;
-	const transformerGap = 5;
-	const storageGap = 2;
 
 	const defaultStorageDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
 	const defaultTransformerDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.TRANSFORMER)
@@ -61,13 +59,73 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		}
 	}, [offsetX, offsetY, scale]);
 
+	const drawBufferArea = (
+		context: CanvasRenderingContext2D,
+		bufferXPos: number,
+		bufferYPos: number,
+		bufferWidth: number,
+		bufferLength: number,
+		scale: number,
+		offsetX: number,
+		offsetY: number
+	) => {
+		if (systemLayout.length === 0) return;
+		// Fill with striped lines
+		const patternCanvas = document.createElement('canvas');
+		patternCanvas.width = 10;
+		patternCanvas.height = 10;
+		const patternContext = patternCanvas.getContext('2d');
+
+		if (patternContext) {
+			// Draw diagonal lines on pattern canvas
+			patternContext.strokeStyle = 'rgba(246, 211, 129, 0.2)';
+			patternContext.lineWidth = 2;
+			patternContext.beginPath();
+			patternContext.moveTo(0, 0);
+			patternContext.lineTo(10, 10);
+			patternContext.moveTo(0, 10);
+			patternContext.lineTo(10, 0);
+			patternContext.stroke();
+
+			const pattern = context.createPattern(patternCanvas, 'repeat');
+
+			if (pattern) {
+				context.fillStyle = pattern;
+			}
+		}
+
+		// Draw the buffer area
+		context.fillRect(
+			bufferXPos * scale + offsetX,
+			bufferYPos * scale + offsetY,
+			bufferWidth * scale,
+			bufferLength * scale,
+		);
+
+		// Draw the border around the buffer area
+		context.strokeStyle = 'rgba(246, 211, 129, 0.6)';
+		context.strokeRect(
+			bufferXPos * scale + offsetX,
+			bufferYPos * scale + offsetY,
+			bufferWidth * scale,
+			bufferLength * scale,
+		);
+	}
+
 	const redrawCanvas = useCallback(() => {
 		const canvas = canvasRef.current;
 		const context = canvas?.getContext('2d');
 
 		if (canvas && context) {
 			context.clearRect(0, 0, canvas.width, canvas.height);
+			
+			//Draw grid
 			drawGrid(context, canvas.width, canvas.height);
+			
+			// Draw buffer
+			const { bufferXPos, bufferYPos, bufferWidth, bufferLength } = calculateBufferArea(systemLayout);
+			console.log(systemLayout)
+			drawBufferArea(context, bufferXPos, bufferYPos, bufferWidth, bufferLength, scale, offsetX, offsetY);
 
 			// Draw devices
 			systemLayout.forEach((row, rowIndex) => {
@@ -97,11 +155,11 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 					if (deviceIndex < row.length - 1) {
 						const nextDevice = row[deviceIndex + 1];
 						if (device.category === DEVICE_CATEGORIES.TRANSFORMER && nextDevice.category === DEVICE_CATEGORIES.STORAGE) {
-							xPos += device.width + walkwayWidth;
+							xPos += device.width + SPACING.WALKWAY_WIDTH;
 						} else if (device.category === DEVICE_CATEGORIES.TRANSFORMER && nextDevice.category === DEVICE_CATEGORIES.TRANSFORMER) {
-							xPos += device.width + transformerGap;
+							xPos += device.width + SPACING.TRANSFORMER_GAP;
 						} else {
-							xPos += device.width + storageGap;
+							xPos += device.width + SPACING.STORAGE_GAP;
 						}
 					}
 				});
@@ -141,10 +199,10 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		};
 	}, [scale, offsetX, offsetY, systemLayout, redrawCanvas]);
 
-	// Center canvas only on initial load
+	// Center canvas when layout is updated
 	useEffect(() => {
 		handleCenterDevices()
-	}, [])
+	}, [systemLayout])
 
 	// Handle scroll to zoom
 	const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
@@ -219,10 +277,10 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 					{device.name}
 				</div>
 				<div>
-					{device.capacity_kwh} kWh
+					{numberToString(device.capacity_kwh)} kWh
 				</div>
 				<div className='text-sm'>
-					${device.cost}
+					{numberToMoneyString(device.cost)}
 				</div>
 				<img className="mt-2 max-w-40 rounded" src={`/assets/products/${device.img}`} alt='' />
 			</div>

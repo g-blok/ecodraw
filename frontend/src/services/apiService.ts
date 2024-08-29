@@ -10,8 +10,21 @@ export const getSites = async (): Promise<SiteData[]> => {
 	return await response.json();
 };
 
-export const updateSiteLayout = async (site: SiteData, updatedLayout: Device[][]): Promise<void> => {
-	console.log('updatedLayout: ', updatedLayout)
+export const createSite = async (site: Partial<SiteData>): Promise<boolean> => {
+	const response = await fetch(`${API_URL}/sites`, {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(site),
+	});
+	if (!response.ok) {
+		throw new Error(`Failed to update site: ${response.statusText}`);
+	}
+	return true;
+};
+
+export const updateSiteLayout = async (site: SiteData, updatedLayout: Device[][]): Promise<boolean> => {
 	const response = await fetch(`${API_URL}/sites/${site.id}`, {
 		method: 'PUT',
 		headers: {
@@ -22,7 +35,21 @@ export const updateSiteLayout = async (site: SiteData, updatedLayout: Device[][]
 	if (!response.ok) {
 		throw new Error(`Failed to update site: ${response.statusText}`);
 	}
-	// return await response.json();
+	return true;
+};
+
+export const updateSiteStage = async (site: SiteData, stage: string): Promise<boolean> => {
+	const response = await fetch(`${API_URL}/sites/${site.id}`, {
+		method: 'PUT',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ stage: stage }),
+	});
+	if (!response.ok) {
+		throw new Error(`Failed to update site: ${response.statusText}`);
+	}
+	return true;
 };
 
 export const getDefaultDevices = async (): Promise<Device[]> => {

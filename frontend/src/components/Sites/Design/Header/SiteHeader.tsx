@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import StageSelect from './StageSelect';
-import IconButton from '@mui/material/IconButton';
+// import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -19,7 +19,7 @@ const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [editedSite, setEditedSite] = useState<Partial<SiteData>>({});
 
-    const handleOpenModal = () => setOpenModal(true);
+    // const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
 
     const handleEditSite = () => {
@@ -29,19 +29,20 @@ const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
         }
     };
 
+    
     return (
-        <div className='flex w-full justify-between items-center px-4 mb-2 border-b-2'>
-            <div className='flex gap-8 items-center '>
+        <div className='flex w-full justify-between items-center p-4 pr-8 mb-2 border-b-2'>
+            <div className='flex gap-8 items-center'>
                 <div className='font-bold'>
                     {site.name}
                 </div>
-                <StageSelect stage={site.stage}/>
+                <StageSelect site={site} />
             </div>
             <div className='flex gap-8 items-center '>
                 <div>{site.address}</div>
-                <IconButton className="w-16 h-16" size="large" aria-label="open settings" onClick={handleOpenModal}>
+                {/* <IconButton className="w-16 h-16" size="large" aria-label="open settings" onClick={handleOpenModal}>
                     <EditRoundedIcon />
-                </IconButton>
+                </IconButton> */}
             </div>
 
             <Modal open={openModal} onClose={handleCloseModal}>

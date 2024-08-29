@@ -9,6 +9,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Cost, Device } from '../../../../common/types/types'
 import { DEVICE_CATEGORIES,  COST_MULTIPLIERS } from '../../../../common/constants/constants'
+import { getTotalArea, getTotalCapacity, getHardwareCost } from '../../../../utils/siteUtils'
+import { numberToString, numberToMoneyString } from '../../../../utils/formatUtils'
 
 interface InfoPanelProps {
     siteDevices: Device[];
@@ -18,8 +20,8 @@ interface InfoPanelProps {
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAddDevice, onRemoveDevice }) => {
-    const initialCapacity = siteDevices.reduce((n, {capacity_kwh}) => n + capacity_kwh, 0)
-    const initialHardwareCost = siteDevices.reduce((n, {cost}) => n + cost, 0)
+    const initialCapacity = getTotalCapacity(siteDevices)
+    const initialHardwareCost = getHardwareCost(siteDevices)
     const deviceArea = siteDevices.reduce((n, {length, width}) => n + length * width, 0)  // TODO: add buffer for walkways
 	const defaultStorageDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
 
@@ -28,7 +30,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
     const [systemArea, setArea] =useState<number>(deviceArea);
     const [totalCost, setTotalCost] =useState<number>(0);
 
-    
     const getCost = useCallback((cost: Cost): number => {
         let adjustedCost = 0;
         if (cost.multiplier_type === 'percent_of_hardware') {
@@ -37,7 +38,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
             adjustedCost = systemCapacity * cost.multiplier
         }
         return adjustedCost;
-    }, [])
+    }, [hardwareCost, systemCapacity])
 
     const getTotalCost = useCallback((): number => {
         let totalCost = hardwareCost;
@@ -70,9 +71,16 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
     return (
         <div className="flex flex-col min-w-1/4 w-1/4 py-4 mt-4 ml-4 rounded-xl border-2 bg-white">
             <div className='mb-4 px-4'>
-                <div className='text-2xl font-bold'>{systemCapacity} kWh</div>
-                <div className=''>${totalCost}</div>
-                <div className=''>{systemArea} sqft</div>
+                <div className='text-2xl font-bold'>{numberToString(systemCapacity)} kWh</div>
+                <div className='text-lg font-bold'>{numberToMoneyString(totalCost)}</div>
+                <div className='flex items-center'>
+                    <div className=''>{numberToString(systemArea)} sqft</div>
+                    <div className='text-xs pl-2'>(Device area)</div>
+                </div>
+                <div className='flex items-center'>
+                    <div className=''>{numberToString(getTotalArea(siteDevices))} sqft</div>
+                    <div className='text-xs pl-2'>(System area)</div>
+                </div>
             </div>
             <div className='flex flex-col h-full overflow-y-auto'>
                 <Accordion defaultExpanded
@@ -142,17 +150,17 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
                         <div className='flex flex-col gap-2 mt-2'>
                             <div className='flex justify-between items-center'>
                                 <div>Hardware</div>
-                                <div>${hardwareCost}</div>
+                                <div>{numberToMoneyString(hardwareCost)}</div>
                             </div>
                             {COST_MULTIPLIERS.map((cost, index) => {
                                 return <div className='flex justify-between items-center' key={index}>
                                     <div>{cost.display}</div>
-                                    <div>${getCost(cost)}</div>
+                                    <div>{numberToMoneyString(getCost(cost))}</div>
                                 </div>
                             })}
                             <div className='flex justify-between items-center'>
                                 <div className='font-bold'>Total</div>
-                                <div className='font-bold'>${totalCost}</div>
+                                <div className='font-bold'>{numberToMoneyString(totalCost)}</div>
                             </div>
                         </div>
                     </AccordionDetails>

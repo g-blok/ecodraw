@@ -1,5 +1,14 @@
 import { Cost, Device, Stage } from '../types/types'
 
+export const SPACING = {
+    WALKWAY_WIDTH: 10,
+	TRANSFORMER_GAP: 5,
+	STORAGE_GAP: 2,
+    MAX_DEVICE_WIDTH: 10,
+    MAX_SYSTEM_WIDTH: 100,
+    OUTER_OFFSET: 10,
+}
+
 export const STAGES: Stage[] = [
     {
         value: 'design',

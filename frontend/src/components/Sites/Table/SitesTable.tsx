@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -16,7 +16,16 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import SiteMap from './SiteMap'
 import { SiteData } from '../../../common/types/types';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import { STAGES } from '../../../common/constants/constants';
+import { v4 as uuidv4 } from 'uuid';
+import { createSite } from '../../../services/apiService';
+import { debounce } from 'lodash'
+import { useLoadScript } from '@react-google-maps/api';
+import { getTotalCapacity, getHardwareCost } from '../../../utils/siteUtils';
+import { numberToString, numberToMoneyString } from '../../../utils/formatUtils';
+
+const libraries = ['places'];
 
 interface SiteTableProps {
   sites: SiteData[];
@@ -31,12 +40,50 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
   const [newSite, setNewSite] = useState<Partial<SiteData>>({});
   const [selectedSite, setSelectedSite] = useState<Partial<SiteData>>({});
 
-  const getCapacity = (): number => {
-    return 1000;
+  useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  const getCityFromLatLng = (lat: number, lng: number): string => {
+    const geocoder = new window.google.maps.Geocoder();
+    const latlng = { lat: lat, lng: lng};
+    let city = '';
+
+    geocoder.geocode({ location: latlng }, (results, status) => {
+      if (!results) return city;
+      if (status === 'OK') {
+        if (results[0]) {
+          const addressComponents = results[0].address_components;
+          for (const component of addressComponents) {
+            if (component.types.includes('locality')) {
+              city = component.long_name;
+            }
+          }
+        } else {
+          console.error('No results found');
+        }
+      } else {
+        console.error('Geocoder failed due to: ' + status);
+      }
+    });
+    return city;
+  };
+
+  const toTitleCase = (str: string) => {
+    return str.toLowerCase().split(' ').map((word: string) => {
+      return (word.charAt(0).toUpperCase() + word.slice(1));
+    }).join(' ');
   }
 
-  const getCost = (): number => {
-    return 1432800;
+  const getCapacity = (): string => {
+    if (!selectedSite?.layout) return '-';
+    return numberToString(getTotalCapacity(selectedSite.layout.flat()));
+  }
+
+  const getCost = (): string => {
+    if (!selectedSite?.layout) return '-';
+    return numberToMoneyString(getHardwareCost(selectedSite.layout.flat()));
   }
 
   const getRevenueStreams = (): string | null => {
@@ -71,14 +118,43 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
-  const handleAddSite = () => {
-    if (newSite.name && newSite.path) {
+  const handleAddSite = async () => {
+    if (newSite.name) {
+      newSite.path = checkPath(newSite.name.toLowerCase());
+      newSite.stage = STAGES[0].value;
+      newSite.id = uuidv4();
+      if (newSite.lat && newSite.long) {
+        newSite.address = getCityFromLatLng(newSite.lat, newSite.long)
+      }
+      await debouncedCreateSite(newSite);
       onAddSite(newSite as SiteData);
       setFilteredData([...filteredData, newSite as SiteData]);
       setNewSite({});
       handleCloseModal();
     }
   };
+
+  // Create new site in database
+	const debouncedCreateSite = useCallback(
+		debounce(async (newSite: Partial<SiteData>) => {
+			try {
+				await createSite(newSite);
+			} catch (error) {
+				console.error('Error create site:', error);
+			}
+		}, 1000),
+		[]
+	);
+
+  const checkPath = (path: string, suf?: number): string => {
+    let suffix: number = suf || 1;
+    if (sites.find(site => site.path === path)) {
+      path = path + suffix;
+      suffix += 1;
+      checkPath(path, suffix); 
+    }
+    return path
+  }
 
   return (
     <div className='flex p-10'>
@@ -116,12 +192,12 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
                   className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} cursor-pointer`}
                 >
                   <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.stage}</TableCell>
+                  <TableCell>{toTitleCase(row.stage)}</TableCell>
                   <TableCell>{row.address}</TableCell>
                   <TableCell>{row.created_date}</TableCell>
                   <TableCell>{row.updated_date}</TableCell>
                   <TableCell align='center' padding='none'>
-                    <IconButton variant='contained' aria-label='design site' onClick={() => handleDesignSite(row.path)}>
+                    <IconButton aria-label='design site' onClick={() => handleDesignSite(row.path)}>
                       <EditRoundedIcon />
                     </IconButton>
                   </TableCell>
@@ -147,8 +223,8 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
               <div className='pl-10 font-bold'>{getCapacity()} kWh</div>
             </div>
             <div className='flex justify-between'>
-              <div>Cost</div>
-              <div className='pl-10 font-bold'>${getCost()}</div>
+              <div>Hardare Cost</div>
+              <div className='pl-10 font-bold'>{getCost()}</div>
             </div>
             <div className='flex justify-between'>
               <div>Metering</div>
@@ -179,22 +255,39 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
             onChange={(e) => setNewSite({ ...newSite, name: e.target.value })}
           />
           <TextField
-            label='Path'
+            label='Latitude'
             variant='outlined'
             fullWidth
             margin='normal'
-            value={newSite.path || ''}
-            onChange={(e) => setNewSite({ ...newSite, path: e.target.value })}
+            value={newSite.lat || ''}
+            type='number'
+            onChange={(e) => setNewSite({ ...newSite, lat: e.target.value })}
           />
           <TextField
-            label='Address'
+            label='Longitude'
             variant='outlined'
             fullWidth
             margin='normal'
-            value={newSite.address || ''}
-            onChange={(e) => setNewSite({ ...newSite, address: e.target.value })}
+            value={newSite.long || ''}
+            type='number'
+            onChange={(e) => setNewSite({ ...newSite, long: e.target.value })}
           />
-          {/* Add more fields as needed */}
+          <TextField
+            label='Market'
+            variant='outlined'
+            fullWidth
+            margin='normal'
+            value={newSite.market || ''}
+            onChange={(e) => setNewSite({ ...newSite, market: e.target.value })}
+          />
+          <TextField
+            label='Metering'
+            variant='outlined'
+            fullWidth
+            margin='normal'
+            value={newSite.metering || ''}
+            onChange={(e) => setNewSite({ ...newSite, metering: e.target.value })}
+          />
           <Button
             variant='contained'
             color='primary'

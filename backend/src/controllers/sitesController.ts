@@ -20,18 +20,17 @@ const getSites = async (req: Request, res: Response) => {
     }
 };
 
-const updateSiteLayout = async (req: Request, res: Response) => {
+const updateSite = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { layout } = req.body;
-  
-    console.log('new layout: ', layout)
-    console.log('ran updateSiteLayout')
+    const updateData = {
+      ...req.body,
+      updated_date: Math.floor(Date.now() / 1000),
+    };
 
     try {
-      // Fetch the chart's SQL query using Supabase
       const { data: site, error } = await supabase
         .from('sites')
-        .update({ layout: layout })
+        .update(updateData)
         .eq('id', id);
   
       if (error) {
@@ -41,9 +40,33 @@ const updateSiteLayout = async (req: Request, res: Response) => {
   
       res.json(site);
     } catch (error) {
-      console.error('Error executing query:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
-export default { getSites, updateSiteLayout };
+const createSite = async (req: Request, res: Response) => {
+    const newSite = {
+      ...req.body,
+      created_date: Math.floor(Date.now() / 1000),
+      updated_date: Math.floor(Date.now() / 1000),
+    };
+
+    try {
+      const { data: site, error } = await supabase
+        .from('sites')
+        .insert(newSite)
+        .single();
+  
+      if (error) {
+        throw error;
+      }
+
+      res.json(site);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export default { getSites, updateSite, createSite };

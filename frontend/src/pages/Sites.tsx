@@ -5,7 +5,7 @@ import SiteDesign from '../components/Sites/Design/SiteDesign';
 import { SiteData } from '../common/types/types';
 import { debounce } from 'lodash';
 import { getSites } from '../services/apiService';
-
+import { DateTime } from 'luxon';
 
 const SitesPage: React.FC = () => {
 	const [sites, setSites] = useState<SiteData[]>([]);
@@ -13,8 +13,15 @@ const SitesPage: React.FC = () => {
 
 	const fetchSites = async () => {
 		try {
-			const data: SiteData[] = await getSites()
-			setSites(data);
+			const sites = await getSites()
+			const updatedSites: SiteData[] = sites.map(site => (
+				{
+					...site,
+					created_date: site.created_date ? DateTime.fromSeconds(site.created_date).toFormat('DD') : '-',
+					updated_date: site.updated_date ? DateTime.fromSeconds(site.updated_date).toFormat('DD') : '-',
+				}
+			))
+			setSites(updatedSites);
 		} catch (error) {
 			console.error('Error fetching sites:', error);
 		} finally {
@@ -22,7 +29,17 @@ const SitesPage: React.FC = () => {
 		}
 	};
 
-	const debouncedFetchSites = useCallback(debounce(fetchSites, 300), []);
+	// Create new site in database
+	const debouncedFetchSites = useCallback(
+		debounce(async () => {
+			try {
+				await fetchSites();
+			} catch (error) {
+				console.error('Error fetching sites:', error);
+			}
+		}, 1000),
+		[]
+	);
 
 	useEffect(() => {
 		debouncedFetchSites();
@@ -32,7 +49,8 @@ const SitesPage: React.FC = () => {
 	}, [debouncedFetchSites]);
 
 	const handleAddSite = (newSite: SiteData) => {
-		setSites([...sites, newSite]);
+		// setSites([...sites, newSite]);
+		fetchSites()
 	};
 
 	return (
