@@ -1,4 +1,4 @@
-# EcoDraw
+# [EcoDraw](ecodraw.io)
 
 This project is a web application designed to help users design and manage energy systems by populating a canvas with various devices (like transformers and energy storage units). The app includes a map integration for geographic context, a backend powered by Node.js and Express.js, and a frontend built with React.
 
