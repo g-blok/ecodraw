@@ -146,7 +146,7 @@ Fetches a list of all sites stored in the Supabase database.
 ### POST /api/sites:uuid
 Creates a new site with the provided data.
 **Request Body:** 
-```json 
+```json5
 {
 	"name": "string", // The name of the site
 	 "id": "string", // A unique identifier for the site
@@ -173,7 +173,7 @@ Creates a new site with the provided data.
           "x": "number", // (Optional) The x-coordinate of the device on the layout
           "y": "number", // (Optional) The y-coordinate of the device on the layout
           "uuid": "string", // (Optional) A unique identifier for the device
-          "img": "string" // (Optional) An image URL for the device }
+          "img": "string" // (Optional) An image URL for the device
         }
       ]
 	 ]
@@ -182,7 +182,7 @@ Creates a new site with the provided data.
 ### PUT /api/sites/:uuid
 Updates the site layout or other information for the site with the specified UUID. Pass any one or several parameters to the endpoint to update.
 **Request Body**
-``` json
+``` json5
 {
 	"name": "string",
 	"layout": Device[][]
