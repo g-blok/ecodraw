@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt # For SSL certificates
+      - /var/log/nginx:/var/log/nginx
+
+networks:
+  app-network:

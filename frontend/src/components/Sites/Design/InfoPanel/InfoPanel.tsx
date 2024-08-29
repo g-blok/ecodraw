@@ -9,7 +9,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Cost, Device } from '../../../../common/types/types'
 import { DEVICE_CATEGORIES,  COST_MULTIPLIERS } from '../../../../common/constants/constants'
-import { getTotalArea, getTotalCapacity, getHardwareCost } from '../../../../utils/siteUtils'
+import { getDeviceArea, getTotalArea, getTotalCapacity, getHardwareCost } from '../../../../utils/siteUtils'
 import { numberToString, numberToMoneyString } from '../../../../utils/formatUtils'
 
 interface InfoPanelProps {
@@ -22,12 +22,12 @@ interface InfoPanelProps {
 const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAddDevice, onRemoveDevice }) => {
     const initialCapacity = getTotalCapacity(siteDevices)
     const initialHardwareCost = getHardwareCost(siteDevices)
-    const deviceArea = siteDevices.reduce((n, {length, width}) => n + length * width, 0)  // TODO: add buffer for walkways
 	const defaultStorageDevices = defaultDevices.filter((device) => device.category === DEVICE_CATEGORIES.STORAGE)
 
     const [systemCapacity, setSystemCapacity] =useState<number>(initialCapacity);
     const [hardwareCost, setCost] =useState<number>(initialHardwareCost);
-    const [systemArea, setArea] =useState<number>(deviceArea);
+    const [deviceArea, setDeviceArea] =useState<number>(getDeviceArea(siteDevices));
+    const [systemArea, setSystemArea] =useState<number>(getTotalArea(siteDevices));
     const [totalCost, setTotalCost] =useState<number>(0);
 
     const getCost = useCallback((cost: Cost): number => {
@@ -51,20 +51,18 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
     }, [getCost, hardwareCost])
 
     useEffect(() => {
+        setSystemCapacity(getTotalCapacity(siteDevices));
+        setCost(getHardwareCost(siteDevices));
+        setDeviceArea(getDeviceArea(siteDevices));
+        setSystemArea(getTotalArea(siteDevices));
         setTotalCost(getTotalCost());
-    }, [getTotalCost, hardwareCost])
+    }, [getTotalCost, siteDevices])
 
     const handleAddDevice = (device: Device) => {
-        setSystemCapacity(systemCapacity + device.capacity_kwh)
-        setCost(hardwareCost + device.cost)
-        setArea(systemArea + device.length * device.width)
         onAddDevice(device.name)
     }
 
     const handleRemoveDevice = (device: Device) => {
-        setSystemCapacity(systemCapacity - device.capacity_kwh)
-        setCost(hardwareCost - device.cost)
-        setArea(systemArea - device.length * device.width)
         onRemoveDevice(device.uuid)
     }
 
@@ -74,11 +72,11 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ siteDevices, defaultDevices, onAd
                 <div className='text-2xl font-bold'>{numberToString(systemCapacity)} kWh</div>
                 <div className='text-lg font-bold'>{numberToMoneyString(totalCost)}</div>
                 <div className='flex items-center'>
-                    <div className=''>{numberToString(systemArea)} sqft</div>
+                    <div className=''>{numberToString(deviceArea)} sqft</div>
                     <div className='text-xs pl-2'>(Device area)</div>
                 </div>
                 <div className='flex items-center'>
-                    <div className=''>{numberToString(getTotalArea(siteDevices))} sqft</div>
+                    <div className=''>{numberToString(systemArea)} sqft</div>
                     <div className='text-xs pl-2'>(System area)</div>
                 </div>
             </div>

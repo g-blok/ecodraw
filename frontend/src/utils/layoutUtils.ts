@@ -3,15 +3,15 @@ import { Device } from '../common/types/types';
 
 const allowableRowCount = SPACING.MAX_SYSTEM_WIDTH / (SPACING.MAX_DEVICE_WIDTH + SPACING.WALKWAY_WIDTH);
 
-export const calculateBufferArea = (layout: Device[][], offset: number = 10) => {
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
+export const getBufferAreaDimensions = (layout: Device[][], offset: number = SPACING.MAX_DEVICE_WIDTH) => {
+    let minX = 0;
+    let minY = 0;
+    let maxX = 0;
+    let maxY = 0;
 
     layout.forEach(row => {
         row.forEach(device => {
-            if (device) {
+            if (device && device.x && device.y) {
                 minX = Math.min(minX, device.x);
                 minY = Math.min(minY, device.y);
                 maxX = Math.max(maxX, device.x + device.width);
@@ -19,11 +19,6 @@ export const calculateBufferArea = (layout: Device[][], offset: number = 10) => 
             }
         });
     });
-
-    minX = isFinite(minX) ? minX : 0;
-    minY = isFinite(minY) ? minY : 0;
-    maxX = isFinite(maxX) ? maxX : 0;
-    maxY = isFinite(maxY) ? maxY : 0;
 
     const bufferXPos = minX - offset;
     const bufferYPos = minY - offset;
@@ -34,8 +29,8 @@ export const calculateBufferArea = (layout: Device[][], offset: number = 10) => 
 
     const validatedBufferWidth = Math.max(bufferWidth, minimumBufferSize);
     const validatedBufferLength = Math.max(bufferLength, minimumBufferSize);
-
-    return { bufferXPos, bufferYPos, bufferWidth: validatedBufferWidth, bufferLength: validatedBufferLength };
+    const totalArea = validatedBufferWidth * validatedBufferLength;
+    return { bufferXPos, bufferYPos, bufferWidth: validatedBufferWidth, bufferLength: validatedBufferLength, totalArea };
 }
 
 

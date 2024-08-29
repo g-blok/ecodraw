@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import { Device } from '../../../../common/types/types';
 import { DEVICE_CATEGORIES, SPACING } from '../../../../common/constants/constants';
-import { calculateBufferArea } from '../../../../utils/layoutUtils'
+import { getBufferAreaDimensions } from '../../../../utils/layoutUtils'
 import { numberToString, numberToMoneyString } from '../../../../utils/formatUtils'
 
 interface DesignCanvasProps {
@@ -59,7 +59,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		}
 	}, [offsetX, offsetY, scale]);
 
-	const drawBufferArea = (
+	const drawBufferArea = useCallback((
 		context: CanvasRenderingContext2D,
 		bufferXPos: number,
 		bufferYPos: number,
@@ -69,15 +69,15 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 		offsetX: number,
 		offsetY: number
 	) => {
+		console.log('requested to draw buffer')
+		console.log('systemLayout in buffer draw: ', systemLayout)
 		if (systemLayout.length === 0) return;
-		// Fill with striped lines
 		const patternCanvas = document.createElement('canvas');
 		patternCanvas.width = 10;
 		patternCanvas.height = 10;
 		const patternContext = patternCanvas.getContext('2d');
 
 		if (patternContext) {
-			// Draw diagonal lines on pattern canvas
 			patternContext.strokeStyle = 'rgba(246, 211, 129, 0.2)';
 			patternContext.lineWidth = 2;
 			patternContext.beginPath();
@@ -110,7 +110,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 			bufferWidth * scale,
 			bufferLength * scale,
 		);
-	}
+	}, [systemLayout])
 
 	const redrawCanvas = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -123,8 +123,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 			drawGrid(context, canvas.width, canvas.height);
 			
 			// Draw buffer
-			const { bufferXPos, bufferYPos, bufferWidth, bufferLength } = calculateBufferArea(systemLayout);
-			console.log(systemLayout)
+			const { bufferXPos, bufferYPos, bufferWidth, bufferLength } = getBufferAreaDimensions(systemLayout);
 			drawBufferArea(context, bufferXPos, bufferYPos, bufferWidth, bufferLength, scale, offsetX, offsetY);
 
 			// Draw devices
@@ -165,7 +164,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 				});
 			});
 		}
-	}, [drawGrid, offsetX, offsetY, scale, systemLayout])
+	}, [drawBufferArea, drawGrid, offsetX, offsetY, scale, systemLayout])
 
 	// Move all devices to center of canvas
 	const handleCenterDevices = useCallback(() => {

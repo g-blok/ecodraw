@@ -159,7 +159,7 @@ Creates a new site with the provided data.
 	 "metering": "string", // The metering type used at the site
 	 "revenue_streams": ["string"],// (Optional) An array of revenue streams associated with the site (e.g., "SGIP", "DRAM")
 	 "layout": [ // (Optional) A 2D array of devices representing the site layout 
-      [ 
+      [
         {
           "name": "string", // The name of the device
           "mfg": "string", // The manufacturer of the device
@@ -176,7 +176,7 @@ Creates a new site with the provided data.
           "img": "string" // (Optional) An image URL for the device
         }
       ]
-	 ]
+	  ]
  }
 ```
 ### PUT /api/sites/:uuid
