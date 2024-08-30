@@ -201,9 +201,9 @@ Fetches a list of all system device definitions.
 
 The vision for this tool is to create a light, welcoming, and professional environment that evokes a new perspective on being green. The branding centers around muted earth tones like moss and riverstone, with a color palette and font choices that offer a solarpunk vibe. The aesthetic is designed to be secure enough to manage business operations while remaining approachable and engaging enough for users to spend hours in. This balance of professionalism and playfulness is intended to make the tool both functional and enjoyable to use.
 
-![Color Palette](./frontend/src/assets/readme_docs/palette.png)
+![Color Palette](./palette.png)
 
-![Fonts](./frontend/src/assets/readme_docs/fonts.png)
+![Fonts](./fonts.png)
 
 ### Users
 
@@ -229,19 +229,8 @@ This tool is designed to support energy storage and renewable energy developers 
 The application consists of four main pages:
 
 1. **Home:** The landing page providing an overview and navigation to other sections.
-   
-   ![Home](home.png)
-
 2. **Site -> Table:** A page where users can view a table of sites and related details.
-   
-    ![Sites Table](sites_table.png)
-
 3. **Site -> Design:** The interactive page for designing site layouts and configuring devices.
-   
-    ![Sites Canvas](site_canvas.png)
-
 4. **Management:** A page for managing projects and monitoring their progress through various stages.
-   
-    ![Management](management.png)
 
 **Thanks for stopping by** 🌱
