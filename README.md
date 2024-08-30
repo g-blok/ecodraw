@@ -230,18 +230,18 @@ The application consists of four main pages:
 
 1. **Home:** The landing page providing an overview and navigation to other sections.
    
-   ![Home](./readme_docs/home.png)
+   ![Home](home.png)
 
 2. **Site -> Table:** A page where users can view a table of sites and related details.
    
-    ![Sites Table](./readme_docs/sites_table.png)
+    ![Sites Table](sites_table.png)
 
 3. **Site -> Design:** The interactive page for designing site layouts and configuring devices.
    
-    ![Sites Canvas](./readme_docs/site_canvas.png)
+    ![Sites Canvas](site_canvas.png)
 
 4. **Management:** A page for managing projects and monitoring their progress through various stages.
    
-    ![Management](./readme_docs/management.png)
+    ![Management](management.png)
 
 **Thanks for stopping by** 🌱
