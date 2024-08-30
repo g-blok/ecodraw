@@ -48,8 +48,15 @@ const SitesPage: React.FC = () => {
 		};
 	}, [debouncedFetchSites]);
 
-	const handleAddSite = (newSite: SiteData) => {
-		// setSites([...sites, newSite]);
+	const handleAddSite = async () => {
+		fetchSites()
+	};
+
+	const handleAddSiteLoading = async (loading: boolean) => {
+		setLoading(loading)
+	};
+
+	const handleSiteChanged = async () => {
 		fetchSites()
 	};
 
@@ -68,8 +75,8 @@ const SitesPage: React.FC = () => {
 				</div>
 			) : (
 				<Routes>
-					<Route path="/" element={<SitesTable sites={sites} onAddSite={handleAddSite} />} />
-					<Route path=":path" element={<SiteDesign sites={sites} />} />
+					<Route path="/" element={<SitesTable sites={sites} onAddSite={handleAddSite} onAddSiteLoading={handleAddSiteLoading}/>} />
+					<Route path=":path" element={<SiteDesign sites={sites} onSiteChange={handleSiteChanged} />} />
 				</Routes>
 			)}
 		</div>

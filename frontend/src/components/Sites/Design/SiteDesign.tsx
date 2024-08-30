@@ -14,9 +14,10 @@ import FmdBadRoundedIcon from '@mui/icons-material/FmdBadRounded';
 
 interface SiteTableProps {
   sites: SiteData[];
+  onSiteChange: () => void;
 }
 
-const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
+const SiteDesign: React.FC<SiteTableProps> = ({ sites, onSiteChange }) => {
 	const { path } = useParams<{ path: string }>();
 	const [siteDevices, setSiteDevices] = useState<Device[]>([]);
 	const [systemLayout, setSystemLayout] = useState<Device[][]>([]);
@@ -163,7 +164,7 @@ const SiteDesign: React.FC<SiteTableProps> = ({ sites }) => {
 				</div>
 			) : (
 				<div>
-					<SiteHeader site={site} />
+					<SiteHeader site={site} onChangeStage={onSiteChange} />
 					<div className="flex h-[70vh] max-h-[70vh]">
 						<InfoPanel siteDevices={siteDevices} defaultDevices={defaultDevices} systemLayout={systemLayout} onAddDevice={addDevice} onRemoveDevice={removeDevice} />
 						<DesignCanvas defaultDevices={defaultDevices} systemLayout={systemLayout} />

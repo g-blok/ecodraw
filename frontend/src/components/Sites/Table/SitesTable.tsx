@@ -30,9 +30,10 @@ const libraries = ['places'];
 interface SiteTableProps {
   sites: SiteData[];
   onAddSite: (site: SiteData) => void;
+  onAddSiteLoading: (loading: boolean) => void;
 }
 
-const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
+const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite, onAddSiteLoading }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filteredData, setFilteredData] = useState<SiteData[]>(sites);
@@ -119,6 +120,7 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
   const handleCloseModal = () => setOpenModal(false);
 
   const handleAddSite = async () => {
+    onAddSiteLoading(true);
     if (newSite.name) {
       newSite.path = checkPath(newSite.name.toLowerCase());
       newSite.stage = STAGES[0].value;
@@ -127,8 +129,7 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
         newSite.address = getCityFromLatLng(newSite.lat, newSite.long)
       }
       await debouncedCreateSite(newSite);
-      onAddSite(newSite as SiteData);
-      setFilteredData([...filteredData, newSite as SiteData]);
+      // setFilteredData([...filteredData, newSite as SiteData]);
       setNewSite({});
       handleCloseModal();
     }
@@ -139,6 +140,10 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite }) => {
 		debounce(async (newSite: Partial<SiteData>) => {
 			try {
 				await createSite(newSite);
+        onAddSite(newSite as SiteData);
+        setTimeout(() => {
+          onAddSiteLoading(false);
+        }, 3000)
 			} catch (error) {
 				console.error('Error create site:', error);
 			}

@@ -10,10 +10,11 @@ import { SiteData, Stage } from '../../../../common/types/types';
 import { debounce } from 'lodash';
 
 interface StageSelectProps {
-    site: SiteData
+    site: SiteData,
+    onChangeStage: () => void;
 }
 
-const StageSelect: React.FC<StageSelectProps> = ({ site }) => {
+const StageSelect: React.FC<StageSelectProps> = ({ site, onChangeStage }) => {
     const initialStage = STAGES.find(stage => stage.value === site.stage.toLowerCase());
     const [selectedStage, setStage] = useState<Stage | undefined>(initialStage ?? undefined);
 
@@ -32,6 +33,7 @@ const StageSelect: React.FC<StageSelectProps> = ({ site }) => {
 		debounce(async (selectedStage: string) => {
 			try {
 				await updateSiteStage(site, selectedStage);
+                onChangeStage();
 			} catch (error) {
 				console.error('Error updating site stage:', error);
 			}

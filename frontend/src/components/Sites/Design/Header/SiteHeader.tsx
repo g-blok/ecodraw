@@ -13,9 +13,10 @@ import { SiteData } from '../../../../common/types/types'
 
 interface SiteHeaderProps {
   site: SiteData;
+  onChangeStage: (stage: string) => void;
 }
 
-const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
+const SiteHeader: React.FC<SiteHeaderProps> = ({ site, onChangeStage }) => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [editedSite, setEditedSite] = useState<Partial<SiteData>>({});
 
@@ -29,14 +30,13 @@ const SiteHeader: React.FC<SiteHeaderProps> = ({ site }) => {
         }
     };
 
-    
     return (
         <div className='flex w-full justify-between items-center p-4 pr-8 mb-2 border-b-2'>
             <div className='flex gap-8 items-center'>
                 <div className='font-bold'>
                     {site.name}
                 </div>
-                <StageSelect site={site} />
+                <StageSelect site={site} onChangeStage={onChangeStage} />
             </div>
             <div className='flex gap-8 items-center '>
                 <div>{site.address}</div>

@@ -192,7 +192,7 @@ const DesignCanvas: React.FC<DesignCanvasProps> = ({ defaultDevices, systemLayou
 
 		const scaleX = canvasWidth / layoutWidth;
 		const scaleY = canvasHeight / layoutHeight;
-		const newScale = Math.min(scaleX, scaleY) * 0.7;
+		const newScale = Math.min(scaleX, scaleY) * 0.6;
 
 		setScale(newScale);
 		setOffsetX(canvasWidth / 2 - centerX * newScale);

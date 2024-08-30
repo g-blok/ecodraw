@@ -28,6 +28,10 @@ This project is a web application designed to help users design and manage energ
     - [POST /api/sites:uuid](#post-apisitesuuid)
     - [PUT /api/sites/:uuid](#put-apisitesuuid)
     - [GET /api/devices](#get-apidevices)
+  - [UX/UI](#uxui)
+    - [Vision and Branding](#vision-and-branding)
+    - [Users](#users)
+    - [Pages](#pages)
 
 ## Features
 
@@ -190,3 +194,54 @@ Updates the site layout or other information for the site with the specified UUI
 ```
 ### GET /api/devices
 Fetches a list of all system device definitions.
+
+## UX/UI
+
+### Vision and Branding
+
+The vision for this tool is to create a light, welcoming, and professional environment that evokes a new perspective on being green. The branding centers around muted earth tones like moss and riverstone, with a color palette and font choices that offer a solarpunk vibe. The aesthetic is designed to be secure enough to manage business operations while remaining approachable and engaging enough for users to spend hours in. This balance of professionalism and playfulness is intended to make the tool both functional and enjoyable to use.
+
+![Color Palette](./frontend/src/assets/readme_docs/palette.png)
+
+![Fonts](./frontend/src/assets/readme_docs/fonts.png)
+
+### Users
+
+This tool is designed to support energy storage and renewable energy developers throughout the entire lifecycle of their projects, from sales to operations. The main users include:
+
+- **Electrical Engineers, Sales Engineers, Analysts:**
+  - Design site layouts.
+  - View projected revenue and costs.
+  - Create detailed reports.
+  
+- **Sales Teams:**
+  - Manage projects through the selling process.
+  - Oversee the progress of sold projects.
+  
+- **Operations Teams:**
+  - Oversee the ongoing maintenance of sold projects.
+  
+- **C-Suite:**
+  - Oversee dashboards for sales and operations, ensuring high-level visibility of all projects.
+
+### Pages
+
+The application consists of four main pages:
+
+1. **Home:** The landing page providing an overview and navigation to other sections.
+   
+   ![Home](./frontend/src/assets/readme_docs/home.png)
+
+2. **Site -> Table:** A page where users can view a table of sites and related details.
+   
+    ![Sites Table](./frontend/src/assets/readme_docs/sites_table.png)
+
+3. **Site -> Design:** The interactive page for designing site layouts and configuring devices.
+   
+    ![Sites Canvas](./frontend/src/assets/readme_docs/site_canvas.png)
+
+4. **Management:** A page for managing projects and monitoring their progress through various stages.
+   
+    ![Management](./frontend/src/assets/readme_docs/management.png)
+
+**Thanks for stopping by** 🌱
