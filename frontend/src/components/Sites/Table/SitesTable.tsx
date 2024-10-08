@@ -23,7 +23,7 @@ import { createSite } from '../../../services/apiService';
 import { debounce } from 'lodash'
 import { useLoadScript } from '@react-google-maps/api';
 import { getTotalCapacity, getHardwareCost } from '../../../utils/siteUtils';
-import { numberToString, numberToMoneyString } from '../../../utils/formatUtils';
+import { numberToString, numberToMoneyString, toTitleCase } from '../../../utils/formatUtils';
 
 const libraries = ['places'];
 
@@ -70,12 +70,6 @@ const SiteTable: React.FC<SiteTableProps> = ({ sites, onAddSite, onAddSiteLoadin
     });
     return city;
   };
-
-  const toTitleCase = (str: string) => {
-    return str.toLowerCase().split(' ').map((word: string) => {
-      return (word.charAt(0).toUpperCase() + word.slice(1));
-    }).join(' ');
-  }
 
   const getCapacity = (): string => {
     if (!selectedSite?.layout) return '-';
