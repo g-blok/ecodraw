@@ -7,6 +7,7 @@ import SitesPage from './pages/Sites';
 import ManagementPage from './pages/Management';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
+import './App.css'
 
 const App: React.FC = () => {
   return (
