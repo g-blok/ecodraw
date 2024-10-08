@@ -34,64 +34,35 @@ export const getBufferAreaDimensions = (layout: Device[][], offset: number = SPA
     return { bufferXPos, bufferYPos, bufferWidth: validatedBufferWidth, bufferLength: validatedBufferLength, totalArea };
 }
 
-
-const getSmallestRowIndex = (layout: Device[][]): number => {
-    const rowCapacities: number[] = layout.map((deviceRow) => {
-        return deviceRow.reduce((n, {capacity_kwh}) => n + capacity_kwh, 0)
-    })
-    return rowCapacities.indexOf(Math.min(...rowCapacities))
-}
-
 export const createSystemLayout = (devices: Device[]): Device[][] => {
     devices.sort((a, b) => a.width - b.width)
+
+    // Split transformers and storage units
     const transformers = devices.filter(device => device.category === DEVICE_CATEGORIES.TRANSFORMER);
     const storageDevices = devices.filter(device => device.category === DEVICE_CATEGORIES.STORAGE);
     const otherDevices = devices.filter(device => device.category !== DEVICE_CATEGORIES.TRANSFORMER && device.category !== DEVICE_CATEGORIES.STORAGE);
     
-    const layout: Device[][] = [];
+    // determine row count and build layout scaffolding
+    const rowCount = Math.min(transformers.length, allowableRowCount);
+    const layout: Device[][] = Array.from({ length: rowCount }, () => []);
 
-    // Build rows with one transformer and at least two storage devices
-    transformers.forEach(transformer => {
-        let row: Device[];
-        const smallestRowIndex = getSmallestRowIndex(layout);
-        
-        if (layout.length < allowableRowCount) {
-            row = [transformer];
+    // handle transformers
+    transformers.forEach((transformer, index) => {
+        const layoutRow = index < rowCount ? index : index % rowCount;
+        layout[layoutRow].push(transformer);
+    })
 
-            // Add two storage devices to the row
-            for (let i = 0; i < 2 && storageDevices.length > 0; i++) {
-                row.push(storageDevices.shift()!);
-            }
-            // Add other devices to the row
-            // while (storageDevices.length > 0 && row.length < 2) {
-            // 	row.push(storageDevices.shift()!);
-            // }
-            while (otherDevices.length > 0 && row.length < 2) {
-                row.push(otherDevices.shift()!);
-            }
-            layout.push(row);
-        } else {
-            row = layout[smallestRowIndex];
-            row.push(transformer)
-            
-            // Add two storage devices to the row
-            for (let i = 0; i < 2 && storageDevices.length > 0; i++) {
-                const smallestRowIndex = getSmallestRowIndex(layout);
-                layout[smallestRowIndex].push(storageDevices.shift()!);
-            }
-            
-            // Add other devices to the row
-            while (storageDevices.length > 0 && row.length < 2) {
-                const smallestRowIndex = getSmallestRowIndex(layout);
-                layout[smallestRowIndex].push(storageDevices.shift()!);
-            }
-            while (otherDevices.length > 0 && row.length < 2) {
-                const smallestRowIndex = getSmallestRowIndex(layout);
-                layout[smallestRowIndex].push(otherDevices.shift()!);
-            }
-        }
-        row.sort((a, b) => b.name.localeCompare(a.name));
-    });
+    // handle storage
+    storageDevices.forEach((storage, index) => {
+        const layoutRow = index < rowCount ? index : index % rowCount;
+        layout[layoutRow].push(storage);
+    })
+
+    // handle other
+    otherDevices.forEach((other, index) => {
+        const layoutRow = index < rowCount ? index : index % rowCount;
+        layout[layoutRow].push(other);
+    })
 
     return layout;
 };
